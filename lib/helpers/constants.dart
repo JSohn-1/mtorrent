@@ -1,0 +1,1 @@
+const Duration refreshInterval = Duration(seconds: 1);

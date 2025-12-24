@@ -1,0 +1,15 @@
+class Torrent {
+  final String name;
+  final int size;
+  final double progress;
+
+  Torrent({required this.name, required this.size, required this.progress});
+
+  factory Torrent.fromJson(Map<String, dynamic> json) {
+    return Torrent(
+      name: json['name'] as String,
+      size: json['size'] as int,
+      progress: (json['progress'] as num).toDouble(),
+    );
+  }
+}
