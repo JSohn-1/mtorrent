@@ -1,6 +1,6 @@
 import 'package:mtorrent/servers/models/server.dart';
 
-import 'bittorent/main.dart';
+import 'bittorent/base.dart';
 
 enum ServerType {
   bittorrent,

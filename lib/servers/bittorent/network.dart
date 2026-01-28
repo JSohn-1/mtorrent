@@ -7,15 +7,17 @@ import '../models/torrent.dart';
 
 class Network {
   final Server server;
+  final http.Client client;
   String? cookie;
 
-  Network(this.server);
+  Network(this.server, this.client);
 
-  static Future<bool> isValid(Server server) async {
+  static Future<bool> isValid(Server server, [http.Client? client]) async {
     try {
       final baseUri = Uri.parse(server.url);
       final url = baseUri.replace(path: '/api/v2/auth/login');
-      final response = await http.post(url)
+      final httpClient = client ?? http.Client();
+      final response = await httpClient.post(url)
           .timeout(const Duration(seconds: 5), onTimeout: () {
         throw Exception('Request timed out');
       });
@@ -28,7 +30,7 @@ class Network {
   Future<Response> get(String path, {Map<String, String>? query}) async {
     final baseUri = Uri.parse(server.url);
     final url = baseUri.replace(path: path, queryParameters: query);
-    final response = await http.get(url, headers: {
+    final response = await client.get(url, headers: {
       if (cookie != null) 'Cookie': cookie!,
     });
     return response;
@@ -37,7 +39,7 @@ class Network {
   Future<Response> post(String path, {Map<String, String>? query, Map<String, String>? body}) async {
     final baseUri = Uri.parse(server.url);
     final url = baseUri.replace(path: path, queryParameters: query);
-    final response = await http.post(url, body: body, headers: {
+    final response = await client.post(url, body: body, headers: {
       if (cookie != null) 'Cookie': cookie!,
     });
     return response;

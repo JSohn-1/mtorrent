@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:http/http.dart' as http;
 import 'package:mtorrent/helpers/constants.dart';
 import 'package:mtorrent/servers/models/torrent.dart';
 
@@ -24,16 +25,19 @@ class BittorrentServer implements TorrentServerBase {
   @override
   late final StreamController<List<Torrent>> torrentStreamController;
 
+  @override
+  final http.Client? client;
+
   late final Network _network;
 
-  BittorrentServer({this.url, this.label, this.username, this.password}) {
+  BittorrentServer({this.url, this.label, this.username, this.password, http.Client? client}) : client = client ?? http.Client() {
     torrentStreamController = StreamController<List<Torrent>>();
 
     _network = Network(Server(
       url: url ?? '',
       username: username ?? '',
       password: password ?? '',
-    ));
+    ), client!);
 
     _init();
   }

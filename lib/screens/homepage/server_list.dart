@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:mtorrent/helpers/db.dart';
 import 'package:mtorrent/servers/torrent_server_base.dart';
-import 'package:mtorrent/servers/bittorent/main.dart';
+import 'package:mtorrent/servers/bittorent/base.dart';
 
 class Serverlist extends StatelessWidget {
   const Serverlist({super.key});
