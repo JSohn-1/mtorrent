@@ -33,7 +33,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
       password: _password ?? '',
     );
 
-    var type = await Servers.getServerType(server);
+    final type = await Servers.getServerType(server);
 
     if (type == null) {
       return setState(() {
@@ -73,7 +73,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
       type: _serverType,
     );
 
-    var dbInstance = Db();
+    final dbInstance = Db();
 
     await dbInstance.insertServer(server);
     if (mounted) {
@@ -85,13 +85,13 @@ class _AddNewScreenState extends State<AddNewScreen> {
   Widget build(BuildContext context) => SafeArea(
       child: Column(
         children: [
-          Text('Add New Screen'),
+          const Text('Add New Screen'),
           Form(
             key: _addNewServerKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('Label'),
+                const Text('Label'),
                 TextFormField(
                   decoration: textFieldDecoration.copyWith(
                     hintText: 'My Server',
@@ -103,7 +103,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                     });
                   },
                 ),
-                Text('URL'),
+                const Text('URL'),
                 TextFormField(
                   decoration: textFieldDecoration.copyWith(
                     hintText: 'https://example.com',
@@ -115,7 +115,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                     });
                   },
                 ),
-                Text('Username'),
+                const Text('Username'),
                 TextFormField(
                   decoration: textFieldDecoration.copyWith(
                     hintText: 'Enter username',
@@ -127,7 +127,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                     });
                   },
                 ),
-                Text('Password'),
+                const Text('Password'),
                 TextFormField(
                   decoration: textFieldDecoration.copyWith(
                     hintText: 'Enter password',
@@ -139,44 +139,42 @@ class _AddNewScreenState extends State<AddNewScreen> {
                     });
                   },
                 ),
-                Text('Type'),
+                const Text('Type'),
                 Row(
                   children: [
                     DropdownButton<String>(
                       value: _serverType,
                       items: <String>['BitTorrent', 'uTorrent', 'qBittorrent']
-                          .map((String value) {
-                            return DropdownMenuItem<String>(
+                          .map((value) => DropdownMenuItem<String>(
                               value: value,
                               child: Text(value),
-                            );
-                          })
+                            ))
                           .toList(),
-                      onChanged: (String? newValue) {
+                      onChanged: (newValue) {
                         setState(() {
                           _serverType = newValue;
                         });
                       },
-                      hint: Text('Select Server Type'),
+                      hint: const Text('Select Server Type'),
                     ),
                     ElevatedButton(
-                      key: Key('autoDetectButton'),
+                      key: const Key('autoDetectButton'),
                       onPressed: detecting ? null : detectServerType,
                       child: detecting
-                          ? CircularProgressIndicator()
-                          : Text('Auto Detect'),
+                          ? const CircularProgressIndicator()
+                          : const Text('Auto Detect'),
                     ),
                   ],
                 ),
                 if (isInvalid && !detecting)
-                  Text(
+                  const Text(
                     'Invalid server details',
                     style: TextStyle(color: Colors.red),
                   ),
 
                 ElevatedButton(
                   onPressed: addServer,
-                  child: Text('Add'),
+                  child: const Text('Add'),
                 ),
               ],
             ),

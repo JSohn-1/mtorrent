@@ -5,14 +5,14 @@ import '../../servers/torrent_server_base.dart';
 
 class TorrentServerHomeScreen extends StatelessWidget {
 
-  const TorrentServerHomeScreen({super.key, required this.server});
+  const TorrentServerHomeScreen({required this.server, super.key});
   final TorrentServerBase server;
 
   @override
   Widget build(BuildContext context) => SafeArea(
       child: Container(
-        decoration: BoxDecoration(color: backgroundColor),
-        child: Column(children: [Text('Hello World!')]),
+        decoration: const BoxDecoration(color: backgroundColor),
+        child: const Column(children: [Text('Hello World!')]),
       ),
     );
 }

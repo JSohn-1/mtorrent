@@ -1,11 +1,8 @@
 class Server {
 
   Server({
-    this.id,
-    required this.url,
+    required this.url, required this.username, required this.password, this.id,
     this.label,
-    required this.username,
-    required this.password,
     this.type,
   });
   final int? id;

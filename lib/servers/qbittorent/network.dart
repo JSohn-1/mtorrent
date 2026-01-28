@@ -22,6 +22,7 @@ class Network {
         throw Exception('Request timed out');
       });
       return (response.statusCode == 200 && response.body == 'Fails.') || (response.statusCode == 403 && response.body == 'Your IP address has been banned after too many failed authentication attempts.');
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       return false;
     }

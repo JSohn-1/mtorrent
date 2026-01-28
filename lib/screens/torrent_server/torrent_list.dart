@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../servers/torrent_server_base.dart';
 
 class Torrentlist extends StatefulWidget {
-  const Torrentlist({super.key, required this.server});
+  const Torrentlist({required this.server, super.key});
   final TorrentServerBase server;
 
   @override
@@ -48,7 +48,7 @@ class _TorrentlistState extends State<Torrentlist> {
 
 class TorrentListItem extends StatelessWidget {
 
-  const TorrentListItem({super.key, required this.name});
+  const TorrentListItem({required this.name, super.key});
   final String name;
 
   @override

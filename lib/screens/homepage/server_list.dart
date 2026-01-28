@@ -58,7 +58,7 @@ class Serverlist extends StatelessWidget {
 
 class ServerItem extends StatelessWidget {
 
-  const ServerItem({super.key, required this.serverName});
+  const ServerItem({required this.serverName, super.key});
   final String serverName;
 
   @override

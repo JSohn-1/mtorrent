@@ -18,5 +18,6 @@ abstract class TorrentServerBase {
   final String? password;
   final http.Client? client;
 
+  // ignore: close_sinks
   late final StreamController<List<Torrent>> torrentStreamController;
 }

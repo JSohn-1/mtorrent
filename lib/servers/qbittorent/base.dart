@@ -21,7 +21,7 @@ class QBittorrentServer implements TorrentServerBase {
 
     _init();
   }
-  static Future<bool> isValid(Server server) async => await Network.isValid(server);
+  static Future<bool> isValid(Server server) async => Network.isValid(server);
 
   @override
   final String? url;
@@ -48,6 +48,7 @@ class QBittorrentServer implements TorrentServerBase {
         final torrents = await _network.fetchTorrents();
         torrentStreamController.add(torrents);
       });
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       torrentStreamController.addError(e);
     }

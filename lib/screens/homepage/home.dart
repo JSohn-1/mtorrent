@@ -23,14 +23,14 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) => SafeArea(
       child: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: backgroundColor,
         ),
         child: Stack(
           children: [
             Column(
               children: [
-                Text('Hello, World!'),
+                const Text('Hello, World!'),
                 Expanded(child: Serverlist(key: ValueKey(_refreshKey))),
               ],
             ),
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   width: 56,
                   height: 56,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.blue,
                     shape: BoxShape.circle,
                   ),
