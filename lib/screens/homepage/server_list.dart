@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:mtorrent/helpers/db.dart';
-import 'package:mtorrent/servers/torrent_server_base.dart';
-import 'package:mtorrent/servers/bittorent/base.dart';
+import '../../helpers/db.dart';
+import '../../servers/torrent_server_base.dart';
+import '../../servers/qbittorent/base.dart';
 
 class Serverlist extends StatelessWidget {
   const Serverlist({super.key});
@@ -14,7 +14,7 @@ class Serverlist extends StatelessWidget {
 
     return servers.map((element) {
       if (element.type == 'BitTorrent') {
-        return BittorrentServer(
+        return QBittorrentServer(
           url: element.url,
           label: element.label,
           username: element.username,
@@ -27,8 +27,7 @@ class Serverlist extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
+  Widget build(BuildContext context) => FutureBuilder(
       future: _buildServerItems(),
       builder: (context, asyncSnapshot) {
         if (asyncSnapshot.hasError) {
@@ -36,7 +35,7 @@ class Serverlist extends StatelessWidget {
         }
 
         if (asyncSnapshot.hasData) {
-          final List<TorrentServerBase> servers = asyncSnapshot.data!;
+          final servers = asyncSnapshot.data!;
 
           if (servers.isEmpty) {
             return const Text('No servers added yet.');
@@ -55,18 +54,15 @@ class Serverlist extends StatelessWidget {
         return const CircularProgressIndicator();
       }
     );
-  }
 }
 
 class ServerItem extends StatelessWidget {
-  final String serverName;
 
   const ServerItem({super.key, required this.serverName});
+  final String serverName;
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
+  Widget build(BuildContext context) => ListTile(
       title: Text(serverName),
     );
-  }
 }

@@ -1,10 +1,4 @@
 class Server {
-  final int? id;
-  final String url;
-  final String? label;
-  final String username;
-  final String password;
-  final String? type;
 
   Server({
     this.id,
@@ -14,4 +8,10 @@ class Server {
     required this.password,
     this.type,
   });
+  final int? id;
+  final String url;
+  final String? label;
+  final String username;
+  final String password;
+  final String? type;
 }

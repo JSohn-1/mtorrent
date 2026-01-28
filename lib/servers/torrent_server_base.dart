@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
-import 'package:mtorrent/servers/models/torrent.dart';
+import 'models/torrent.dart';
 
 abstract class TorrentServerBase {
+
+  TorrentServerBase(
+      {this.url, this.label, this.username, this.password, this.client}
+  );
   static Future<bool> isValid() {
     throw UnimplementedError();
   }
@@ -15,8 +19,4 @@ abstract class TorrentServerBase {
   final http.Client? client;
 
   late final StreamController<List<Torrent>> torrentStreamController;
-
-  TorrentServerBase(
-      {this.url, this.label, this.username, this.password, this.client}
-  );
 }

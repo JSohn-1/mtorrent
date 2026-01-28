@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mtorrent/servers/models/server.dart';
+import '../servers/models/server.dart';
 
 import '../helpers/decoration.dart';
 import '../helpers/db.dart';
@@ -33,7 +33,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
       password: _password ?? '',
     );
 
-    ServerType? type = await Servers.getServerType(server);
+    var type = await Servers.getServerType(server);
 
     if (type == null) {
       return setState(() {
@@ -64,7 +64,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
       return;
     }
 
-    var server = Server(
+    final server = Server(
       id: null,
       url: _url!,
       label: _label,
@@ -73,7 +73,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
       type: _serverType,
     );
 
-    Db dbInstance = Db();
+    var dbInstance = Db();
 
     await dbInstance.insertServer(server);
     if (mounted) {
@@ -82,8 +82,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
+  Widget build(BuildContext context) => SafeArea(
       child: Column(
         children: [
           Text('Add New Screen'),
@@ -185,5 +184,4 @@ class _AddNewScreenState extends State<AddNewScreen> {
         ],
       ),
     );
-  }
 }

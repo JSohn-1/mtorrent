@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mtorrent/helpers/decoration.dart';
-import 'package:mtorrent/screens/homepage/server_list.dart';
+import '../../helpers/decoration.dart';
+import 'server_list.dart';
 
 import '../add_new.dart';
 
@@ -21,8 +21,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
+  Widget build(BuildContext context) => SafeArea(
       child: Container(
         decoration: BoxDecoration(
           color: backgroundColor,
@@ -63,5 +62,4 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
 }

@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../servers/models/server.dart';
 
 class Db {
-  static final Db _instance = Db._internal();
   factory Db() => _instance;
   Db._internal();
+  static final Db _instance = Db._internal();
 
   Database? _database;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
@@ -15,7 +15,7 @@ class Db {
   Future<Database> get database async {
     if (_database != null) return _database!;
 
-    String path = join(await getDatabasesPath(), 'app_database.db');
+    final path = join(await getDatabasesPath(), 'app_database.db');
     _database = await openDatabase(
       path,
       version: 2,
@@ -38,7 +38,7 @@ class Db {
 
   Future<void> insertServer(Server server) async {
     final db = await database;
-    Map<String, dynamic> data = {
+    final data = <String, dynamic>{
       'url': server.url,
       'label': server.label,
       'username': server.username,
@@ -55,16 +55,14 @@ class Db {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('servers');
 
-    return List.generate(maps.length, (i) {
-      return Server(
+    return List.generate(maps.length, (i) => Server(
         id: maps[i]['id'],
         url: maps[i]['url'],
         label: maps[i]['label'],
         username: maps[i]['username'],
         password: maps[i]['password'],
         type: maps[i]['type'],
-      );
-    });
+      ));
   }
 
   Future<void> deleteServer(int id) async {
@@ -76,9 +74,7 @@ class Db {
     await _secureStorage.write(key: key, value: value);
   }
 
-  Future<String?> retrieveSecureData(String key) async {
-    return await _secureStorage.read(key: key);
-  }
+  Future<String?> retrieveSecureData(String key) async => _secureStorage.read(key: key);
 
   Future<void> deleteSecureData(String key) async {
     await _secureStorage.delete(key: key);

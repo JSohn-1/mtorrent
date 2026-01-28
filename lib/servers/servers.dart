@@ -1,6 +1,6 @@
-import 'package:mtorrent/servers/models/server.dart';
+import 'models/server.dart';
 
-import 'bittorent/base.dart';
+import 'qbittorent/base.dart';
 
 enum ServerType {
   bittorrent,
@@ -9,7 +9,7 @@ enum ServerType {
 
 class Servers {
   static Future<ServerType?> getServerType(Server server) async {
-    if (await BittorrentServer.isValid(server)) {
+    if (await QBittorrentServer.isValid(server)) {
       return ServerType.bittorrent;
     }
 

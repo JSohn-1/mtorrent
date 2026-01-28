@@ -1,17 +1,27 @@
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
-import 'package:mtorrent/helpers/constants.dart';
-import 'package:mtorrent/servers/models/torrent.dart';
+import '../../helpers/constants.dart';
+import '../models/torrent.dart';
 
 import 'network.dart';
 import '../models/server.dart';
 import '../torrent_server_base.dart';
 
-class BittorrentServer implements TorrentServerBase {
-  static Future<bool> isValid(Server server) async {
-    return await Network.isValid(server);
+class QBittorrentServer implements TorrentServerBase {
+
+  QBittorrentServer({this.url, this.label, this.username, this.password, http.Client? client}) : client = client ?? http.Client() {
+    torrentStreamController = StreamController<List<Torrent>>();
+
+    _network = Network(Server(
+      url: url ?? '',
+      username: username ?? '',
+      password: password ?? '',
+    ), client!);
+
+    _init();
   }
+  static Future<bool> isValid(Server server) async => await Network.isValid(server);
 
   @override
   final String? url;
@@ -29,18 +39,6 @@ class BittorrentServer implements TorrentServerBase {
   final http.Client? client;
 
   late final Network _network;
-
-  BittorrentServer({this.url, this.label, this.username, this.password, http.Client? client}) : client = client ?? http.Client() {
-    torrentStreamController = StreamController<List<Torrent>>();
-
-    _network = Network(Server(
-      url: url ?? '',
-      username: username ?? '',
-      password: password ?? '',
-    ), client!);
-
-    _init();
-  }
 
   Future<void> _init() async {
     try {

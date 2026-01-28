@@ -1,7 +1,4 @@
 class Torrent {
-  final String name;
-  final int size;
-  final double progress;
 
   Torrent({required this.name, required this.size, required this.progress});
 
@@ -12,4 +9,7 @@ class Torrent {
       progress: (json['progress'] as num).toDouble(),
     );
   }
+  final String name;
+  final int size;
+  final double progress;
 }

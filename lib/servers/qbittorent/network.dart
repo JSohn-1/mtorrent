@@ -6,11 +6,11 @@ import '../models/server.dart';
 import '../models/torrent.dart';
 
 class Network {
+
+  Network(this.server, this.client);
   final Server server;
   final http.Client client;
   String? cookie;
-
-  Network(this.server, this.client);
 
   static Future<bool> isValid(Server server, [http.Client? client]) async {
     try {
