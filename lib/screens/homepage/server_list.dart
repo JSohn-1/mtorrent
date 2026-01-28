@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../helpers/db.dart';
+import '../../helpers/decoration.dart';
+import '../../servers/models/torrent.dart';
 import '../../servers/torrent_server_base.dart';
 import '../../servers/qbittorent/base.dart';
 
@@ -13,7 +15,7 @@ class Serverlist extends StatelessWidget {
     final servers = await db.getServers();
 
     return servers.map((element) {
-      if (element.type == 'BitTorrent') {
+      if (element.type == 'qBittorrent') {
         return QBittorrentServer(
           url: element.url,
           label: element.label,
@@ -28,41 +30,97 @@ class Serverlist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FutureBuilder(
-      future: _buildServerItems(),
-      builder: (context, asyncSnapshot) {
-        if (asyncSnapshot.hasError) {
-          return Text('Error: ${asyncSnapshot.error}');
-        }
-
-        if (asyncSnapshot.hasData) {
-          final servers = asyncSnapshot.data!;
-
-          if (servers.isEmpty) {
-            return const Text('No servers added yet.');
-          }
-
-          return Material(
-            child: ListView.builder(
-              itemCount: servers.length,
-              itemBuilder: (context, index) {
-                final server = servers[index];
-                return ServerItem(serverName: server.label ?? 'Unknown Server');
-              },
-            ),
-          );
-        }
-        return const CircularProgressIndicator();
+    future: _buildServerItems(),
+    builder: (context, asyncSnapshot) {
+      if (asyncSnapshot.hasError) {
+        return Text('Error: ${asyncSnapshot.error}');
       }
-    );
+
+      if (asyncSnapshot.hasData) {
+        final servers = asyncSnapshot.data!;
+
+        if (servers.isEmpty) {
+          return const Text('No servers added yet.');
+        }
+
+        return Material(
+          color: backgroundColor,
+          child: ListView.builder(
+            itemCount: servers.length,
+            itemBuilder: (context, index) {
+              final server = servers[index];
+              return ServerItem(server: server);
+            },
+          ),
+        );
+      }
+      return const CircularProgressIndicator();
+    },
+  );
 }
 
 class ServerItem extends StatelessWidget {
-
-  const ServerItem({required this.serverName, super.key});
-  final String serverName;
+  const ServerItem({required this.server, super.key});
+  final TorrentServerBase server;
 
   @override
-  Widget build(BuildContext context) => ListTile(
-      title: Text(serverName),
-    );
+  Widget build(BuildContext context) => Container(
+    height: 50,
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: Colors.grey[800],
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        ConnectionStateIndicator(server: server),
+        const Padding(padding: EdgeInsets.all(10)),
+        Text(
+          server.label ?? 'Unknown Server',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ],
+    ),
+  );
+}
+
+class ConnectionStateIndicator extends StatefulWidget {
+  const ConnectionStateIndicator({required this.server, super.key});
+  final TorrentServerBase server;
+
+  @override
+  State<ConnectionStateIndicator> createState() =>
+      _ConnectionStateIndicatorState();
+}
+
+class _ConnectionStateIndicatorState extends State<ConnectionStateIndicator> {
+  @override
+  Widget build(BuildContext context) => StreamBuilder<List<Torrent>>(
+    stream: widget.server.torrentStreamController.stream,
+    builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        return Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.green,
+          ),
+          width: 16,
+          height: 16,
+        );
+      }
+
+      if (snapshot.hasError) {
+        return Container(
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.red,
+          ),
+          width: 16,
+          height: 16,
+        );
+      }
+
+      return const CircularProgressIndicator();
+    },
+  );
 }

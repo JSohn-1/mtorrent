@@ -22,8 +22,14 @@ class _AddNewScreenState extends State<AddNewScreen> {
   String? _serverType;
 
   bool isInvalid = false;
-
   bool detecting = false;
+  bool testing = false;
+
+  bool readyToDetect = false;
+  bool readyToTest = false;
+  bool readyToAdd = false;
+
+  Widget testButtonChild = const Text('Test');
 
   Future<void> detectServerType() async {
     setState(() => detecting = true);
@@ -46,8 +52,9 @@ class _AddNewScreenState extends State<AddNewScreen> {
       isInvalid = false;
       detecting = false;
       switch (type) {
-        case ServerType.bittorrent:
-          _serverType = 'BitTorrent';
+        case ServerType.qbittorrent:
+          _serverType = 'qBittorrent';
+          checkReadyToTest();
           break;
         default:
           _serverType = null;
@@ -81,6 +88,67 @@ class _AddNewScreenState extends State<AddNewScreen> {
     }
   }
 
+  Future<void> checkReadyToDetect() async {
+    setState(() {
+      readyToDetect = _url != null;
+    });
+  }
+
+  Future<void> checkReadyToTest() async {
+    setState(() {
+      readyToTest = _url != null && _username != null && _password != null && _serverType != null;
+    });
+  }
+
+  Future<void> checkReadyToAdd() async {
+    setState(() {
+      readyToAdd = _label != null && _url != null && _username != null && _password != null && _serverType != null;
+    });
+  }
+
+  Future<void> testServer() async {
+    final server = Servers.getServerInstance(Server(
+      url: _url!,
+      username: _username!,
+      password: _password!,
+      type: _serverType,
+    ));
+
+    if (server == null) {
+      return setState(() {
+        isInvalid = true;
+      });
+    }
+
+    setState(() {
+      testing = true;
+      testButtonChild = const CircularProgressIndicator();
+    });
+
+    final response = await server.isValidCredentials();
+
+    setState(() {
+      testing = false;
+      if (response == null) {
+        testButtonChild = const Icon(Icons.check_circle, color: Colors.green);
+      } else {
+        testButtonChild = const Icon(Icons.error, color: Colors.red);
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Login Error'),
+            content: Text(response),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
   @override
   Widget build(BuildContext context) => SafeArea(
       child: Column(
@@ -100,6 +168,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
                   onChanged: (value) {
                     setState(() {
                       _label = value;
+                      checkReadyToAdd();
                     });
                   },
                 ),
@@ -112,6 +181,9 @@ class _AddNewScreenState extends State<AddNewScreen> {
                   onChanged: (value) {
                     setState(() {
                       _url = value;
+                      checkReadyToDetect();
+                      checkReadyToTest();
+                      checkReadyToAdd();
                     });
                   },
                 ),
@@ -124,6 +196,8 @@ class _AddNewScreenState extends State<AddNewScreen> {
                   onChanged: (value) {
                     setState(() {
                       _username = value;
+                      checkReadyToTest();
+                      checkReadyToAdd();
                     });
                   },
                 ),
@@ -136,6 +210,8 @@ class _AddNewScreenState extends State<AddNewScreen> {
                   onChanged: (value) {
                     setState(() {
                       _password = value;
+                      checkReadyToTest();
+                      checkReadyToAdd();
                     });
                   },
                 ),
@@ -153,13 +229,15 @@ class _AddNewScreenState extends State<AddNewScreen> {
                       onChanged: (newValue) {
                         setState(() {
                           _serverType = newValue;
+                          checkReadyToTest();
+                          checkReadyToAdd();
                         });
                       },
                       hint: const Text('Select Server Type'),
                     ),
                     ElevatedButton(
                       key: const Key('autoDetectButton'),
-                      onPressed: detecting ? null : detectServerType,
+                      onPressed: !detecting && readyToDetect ? detectServerType : null,
                       child: detecting
                           ? const CircularProgressIndicator()
                           : const Text('Auto Detect'),
@@ -172,9 +250,17 @@ class _AddNewScreenState extends State<AddNewScreen> {
                     style: TextStyle(color: Colors.red),
                   ),
 
-                ElevatedButton(
-                  onPressed: addServer,
-                  child: const Text('Add'),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: readyToTest ? testServer : null, 
+                      child: testButtonChild,
+                      ),
+                    ElevatedButton(
+                      onPressed: readyToAdd ? addServer : null,
+                      child: const Text('Add'),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -13,7 +13,9 @@ class Db {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
+    if (_database != null) {
+      return _database!;
+    }
 
     final path = join(await getDatabasesPath(), 'app_database.db');
     _database = await openDatabase(
@@ -78,5 +80,13 @@ class Db {
 
   Future<void> deleteSecureData(String key) async {
     await _secureStorage.delete(key: key);
+  }
+
+  Future<void> resetDatabase() async {
+    final db = await database;
+    await db.execute('DROP TABLE IF EXISTS servers');
+    await db.execute(
+      'CREATE TABLE servers(id INTEGER PRIMARY KEY, label TEXT, url TEXT, username TEXT, password TEXT, type TEXT)',
+    );
   }
 }

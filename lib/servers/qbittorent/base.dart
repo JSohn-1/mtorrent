@@ -10,8 +10,8 @@ import '../torrent_server_base.dart';
 
 class QBittorrentServer implements TorrentServerBase {
 
-  QBittorrentServer({this.url, this.label, this.username, this.password, http.Client? client}) : client = client ?? http.Client() {
-    torrentStreamController = StreamController<List<Torrent>>();
+  QBittorrentServer({this.url, this.label, this.username, this.password, http.Client? httpClient}) : client = httpClient ?? http.Client() {
+    torrentStreamController = StreamController<List<Torrent>>.broadcast();
 
     _network = Network(Server(
       url: url ?? '',
@@ -21,7 +21,11 @@ class QBittorrentServer implements TorrentServerBase {
 
     _init();
   }
-  static Future<bool> isValid(Server server) async => Network.isValid(server);
+
+  static Future<bool> isValidServer(Server server) async => Network.isValid(server);
+
+  @override
+  Future<String?> isValidCredentials() async => _network.isValidCredentials();
 
   @override
   final String? url;
@@ -45,8 +49,13 @@ class QBittorrentServer implements TorrentServerBase {
       await _network.authenticate();
 
       Timer.periodic(refreshInterval, (_) async {
-        final torrents = await _network.fetchTorrents();
-        torrentStreamController.add(torrents);
+        try {
+          final torrents = await _network.fetchTorrents();
+          torrentStreamController.add(torrents);
+        // ignore: avoid_catches_without_on_clauses
+        } catch (e) {
+          torrentStreamController.addError(e);
+        }
       });
     // ignore: avoid_catches_without_on_clauses
     } catch (e) {

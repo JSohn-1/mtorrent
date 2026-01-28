@@ -8,7 +8,12 @@ abstract class TorrentServerBase {
   TorrentServerBase(
       {this.url, this.label, this.username, this.password, this.client}
   );
-  static Future<bool> isValid() {
+
+  static Future<bool> isValidServer() {
+    throw UnimplementedError();
+  }
+
+  Future<String?> isValidCredentials() {
     throw UnimplementedError();
   }
 

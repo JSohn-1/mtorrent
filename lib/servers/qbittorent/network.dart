@@ -6,7 +6,6 @@ import '../models/server.dart';
 import '../models/torrent.dart';
 
 class Network {
-
   Network(this.server, this.client);
   final Server server;
   final http.Client client;
@@ -29,17 +28,27 @@ class Network {
   }
 
   Future<Response> get(String path, {Map<String, String>? query}) async {
+    cookie ??= throw Exception('Not authenticated');
+
+    final fullPath = '/api/v2/$path';
+
     final baseUri = Uri.parse(server.url);
-    final url = baseUri.replace(path: path, queryParameters: query);
+    final url = baseUri.replace(path: fullPath, queryParameters: query);
     final response = await client.get(url, headers: {
-      if (cookie != null) 'Cookie': cookie!,
+      'Cookie': cookie!,
     });
     return response;
   }
 
   Future<Response> post(String path, {Map<String, String>? query, Map<String, String>? body}) async {
+    final fullPath = '/api/v2/$path';
+    if (fullPath != '/api/v2/auth/login') {
+      cookie ??= throw Exception('Not authenticated');
+    }
+
+
     final baseUri = Uri.parse(server.url);
-    final url = baseUri.replace(path: path, queryParameters: query);
+    final url = baseUri.replace(path: fullPath, queryParameters: query);
     final response = await client.post(url, body: body, headers: {
       if (cookie != null) 'Cookie': cookie!,
     });
@@ -47,12 +56,12 @@ class Network {
   }
 
   Future<void> authenticate() async {
-    final query = {
+    final body = {
       'username': server.username,
       'password': server.password,
     };
 
-    final response = await post('/api/v2/auth/login', query: query);
+    final response = await post('auth/login', body: body);
 
     if (response.statusCode == 200 && response.body == 'Ok.') {
       final setCookie = response.headers['set-cookie'];
@@ -60,12 +69,22 @@ class Network {
         cookie = setCookie.split(';').first;
       }
     } else {
-      throw Exception('Authentication failed');
+      throw Exception('Authentication failed: ${response.statusCode}:${response.body}');
+    }
+  }
+
+  Future<String?> isValidCredentials() async {
+    try {
+      await authenticate();
+      return null;
+    // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      return e.toString();
     }
   }
 
   Future<List<Torrent>> fetchTorrents() async {
-    final response = await get('/api/v2/torrents/info');
+    final response = await get('torrents/info');
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
