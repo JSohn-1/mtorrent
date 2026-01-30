@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const MaterialApp(
-      title: 'Flutter Demo',
-      color: Color.fromARGB(255, 12, 12, 12),
-      home: HomePage(),
-    );
+    title: 'Flutter Demo',
+    color: Color.fromARGB(255, 12, 12, 12),
+    home: HomePage(),
+  );
 }

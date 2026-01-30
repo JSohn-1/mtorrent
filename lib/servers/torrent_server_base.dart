@@ -25,4 +25,6 @@ abstract class TorrentServerBase {
 
   // ignore: close_sinks
   late final StreamController<List<Torrent>> torrentStreamController;
+  // ignore: close_sinks
+  late final StreamController<bool> connectionStatusStreamController;
 }

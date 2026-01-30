@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../helpers/db.dart';
 import '../../helpers/decoration.dart';
-import '../../servers/models/torrent.dart';
 import '../../servers/torrent_server_base.dart';
 import '../../servers/qbittorent/base.dart';
 
@@ -79,6 +78,8 @@ class ServerItem extends StatelessWidget {
           server.label ?? 'Unknown Server',
           style: const TextStyle(color: Colors.white),
         ),
+        const Spacer(),
+        const Icon(Icons.arrow_forward_ios),
       ],
     ),
   );
@@ -95,25 +96,14 @@ class ConnectionStateIndicator extends StatefulWidget {
 
 class _ConnectionStateIndicatorState extends State<ConnectionStateIndicator> {
   @override
-  Widget build(BuildContext context) => StreamBuilder<List<Torrent>>(
-    stream: widget.server.torrentStreamController.stream,
+  Widget build(BuildContext context) => StreamBuilder<bool>(
+    stream: widget.server.connectionStatusStreamController.stream,
     builder: (context, snapshot) {
       if (snapshot.hasData) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.green,
-          ),
-          width: 16,
-          height: 16,
-        );
-      }
-
-      if (snapshot.hasError) {
-        return Container(
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.red,
+            color: snapshot.data! ? Colors.green : Colors.red,
           ),
           width: 16,
           height: 16,
