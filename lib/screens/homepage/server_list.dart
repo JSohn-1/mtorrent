@@ -4,6 +4,7 @@ import '../../helpers/db.dart';
 import '../../helpers/decoration.dart';
 import '../../servers/torrent_server_base.dart';
 import '../../servers/qbittorent/base.dart';
+import '../torrent_server/home.dart';
 
 class Serverlist extends StatelessWidget {
   const Serverlist({super.key});
@@ -63,24 +64,32 @@ class ServerItem extends StatelessWidget {
   final TorrentServerBase server;
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: 50,
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: Colors.grey[800],
-      borderRadius: BorderRadius.circular(8),
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: () => Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TorrentServerHomeScreen(server: server),
+      ),
     ),
-    child: Row(
-      children: [
-        ConnectionStateIndicator(server: server),
-        const Padding(padding: EdgeInsets.all(10)),
-        Text(
-          server.label ?? 'Unknown Server',
-          style: const TextStyle(color: Colors.white),
-        ),
-        const Spacer(),
-        const Icon(Icons.arrow_forward_ios),
-      ],
+    child: Container(
+      height: 50,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          ConnectionStateIndicator(server: server),
+          const Padding(padding: EdgeInsets.all(10)),
+          Text(
+            server.label ?? 'Unknown Server',
+            style: const TextStyle(color: Colors.white),
+          ),
+          const Spacer(),
+          const Icon(Icons.arrow_forward_ios),
+        ],
+      ),
     ),
   );
 }
@@ -96,18 +105,22 @@ class ConnectionStateIndicator extends StatefulWidget {
 
 class _ConnectionStateIndicatorState extends State<ConnectionStateIndicator> {
   @override
-  Widget build(BuildContext context) => StreamBuilder<bool>(
+  Widget build(BuildContext context) => StreamBuilder<ServerState>(
     stream: widget.server.connectionStatusStreamController.stream,
     builder: (context, snapshot) {
       if (snapshot.hasData) {
-        return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: snapshot.data! ? Colors.green : Colors.red,
-          ),
-          width: 16,
-          height: 16,
-        );
+        return snapshot.data == ServerState.error
+            ? const Icon(Icons.error, color: Colors.red)
+            : Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: snapshot.data == ServerState.connected
+                      ? Colors.green
+                      : Colors.red,
+                ),
+                width: 16,
+                height: 16,
+              );
       }
 
       return const CircularProgressIndicator();

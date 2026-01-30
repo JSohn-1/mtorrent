@@ -4,9 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:mtorrent/servers/models/server.dart';
 import 'package:mtorrent/servers/qbittorent/base.dart';
-import 'package:mtorrent/servers/qbittorent/network.dart';
+import 'package:mtorrent/servers/torrent_server_base.dart';
 
 import 'network.mocks.mocks.dart';
 
@@ -20,17 +19,16 @@ void main() {
   group('streams', () {
     group('conncetionStatusStream', () {
       test('should emit connection status changes', () async {
-        serverInstance = QBittorrentServer(
+        serverInstance = QBittorrentServer.test(
           url: endpoint,
           username: 'user',
           password: 'pass',
-          httpClient: mockHttpClient,
-          isTestMode: true,
+          client: mockHttpClient,
         );
 
         serverInstance.network.cookie = cookie;
 
-        final statuses = <bool>[];
+        final statuses = <ServerState>[];
 
         final statusesReady = Completer<void>();
         final subscription = serverInstance
@@ -79,7 +77,11 @@ void main() {
         // Wait for all 3 statuses to be captured
         await statusesReady.future;
 
-        expect(statuses, [true, false, true]);
+        expect(statuses, [
+          ServerState.connected,
+          ServerState.disconnected,
+          ServerState.connected,
+        ]);
 
         await subscription.cancel();
       });

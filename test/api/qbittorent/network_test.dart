@@ -30,7 +30,7 @@ void main() {
 
         final isValid = await Network.isValid(
           Server(url: endpoint, username: '', password: ''),
-          mockHttpClient,
+          client: mockHttpClient,
         );
 
         expect(isValid, true);
@@ -49,7 +49,7 @@ void main() {
 
         final isValid = await Network.isValid(
           Server(url: endpoint, username: '', password: ''),
-          mockHttpClient,
+          client: mockHttpClient,
         );
 
         expect(isValid, false);
@@ -58,7 +58,8 @@ void main() {
 
     group('applicationVersion', () {
       test('should return version string when request is successful', () async {
-        final response = http.Response('{"version":"4.3.3"}', 200);
+        const serverVersion = '4.3.3';
+        final response = http.Response(serverVersion, 200);
         when(
           mockHttpClient.get(
             argThat(predicate<Uri>((uri) => uri.path == '/api/v2/app/version')),
@@ -73,7 +74,7 @@ void main() {
 
         final version = await network.applicationVersion();
 
-        expect(version, '4.3.3');
+        expect(version, serverVersion);
       });
 
       test('should throw exception when request fails', () async {

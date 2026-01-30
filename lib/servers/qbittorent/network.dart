@@ -12,7 +12,7 @@ class Network {
   final http.Client client;
   String? cookie;
 
-  static Future<bool> isValid(Server server, [http.Client? client]) async {
+  static Future<bool> isValid(Server server, {http.Client? client}) async {
     try {
       final baseUri = Uri.parse(server.url);
       final url = baseUri.replace(path: '/api/v2/auth/login');
@@ -49,6 +49,16 @@ class Network {
     final response = await client
         .get(url, headers: {'Cookie': cookie!})
         .timeout(timeout ?? networkTimeout);
+
+    if (response.statusCode == 403) {
+      await authenticate();
+      final response2 = await client
+          .get(url, headers: {'Cookie': cookie!})
+          .timeout(timeout ?? networkTimeout);
+
+      return response2;
+    }
+
     return response;
   }
 
@@ -68,6 +78,15 @@ class Network {
     final response = await client
         .post(url, body: body, headers: {if (cookie != null) 'Cookie': cookie!})
         .timeout(timeout ?? networkTimeout);
+
+    if (response.statusCode == 403 && fullPath != '/api/v2/auth/login') {
+      await authenticate();
+
+      final response2 = await client
+          .post(url, body: body, headers: {'Cookie': cookie!})
+          .timeout(timeout ?? networkTimeout);
+      return response2;
+    }
     return response;
   }
 
@@ -102,10 +121,11 @@ class Network {
     final response = await get('app/version', timeout: timeout);
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      return json['version'] as String;
+      return response.body;
     } else {
-      throw Exception('Failed to fetch application version');
+      throw Exception(
+        'Failed to fetch application version: ${response.statusCode}',
+      );
     }
   }
 

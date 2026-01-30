@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import './screens/homepage/home.dart';
 import 'helpers/db.dart';
+import 'helpers/decoration.dart';
 
 void main() async {
   // SUPER TEMPORARY DELETE WHEN BUILDING RELEASE
@@ -15,9 +16,9 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) => const MaterialApp(
+  Widget build(BuildContext context) => MaterialApp(
     title: 'Flutter Demo',
-    color: Color.fromARGB(255, 12, 12, 12),
-    home: HomePage(),
+    theme: primaryDarkTheme,
+    home: const HomePage(),
   );
 }

@@ -1,7 +1,12 @@
-
 import 'package:flutter/material.dart';
 
 const backgroundColor = Color.fromARGB(255, 12, 12, 12);
+
+final primaryDarkTheme = ThemeData.dark().copyWith(
+  primaryColor: Colors.blueAccent,
+  scaffoldBackgroundColor: backgroundColor,
+  textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+);
 
 const textFieldDecoration = InputDecoration(
   filled: true,

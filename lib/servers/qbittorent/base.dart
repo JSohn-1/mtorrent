@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../helpers/constants.dart';
 import '../models/torrent.dart';
@@ -9,27 +10,74 @@ import '../models/server.dart';
 import '../torrent_server_base.dart';
 
 class QBittorrentServer implements TorrentServerBase {
-  QBittorrentServer({
+  factory QBittorrentServer({
+    String? url,
+    String? label,
+    String? username,
+    String? password,
+  }) {
+    final network = Network(
+      Server(
+        url: url ?? '',
+        label: label,
+        username: username ?? '',
+        password: password ?? '',
+      ),
+      http.Client(),
+    );
+
+    final instance = QBittorrentServer._internal(
+      url: url,
+      label: label,
+      username: username,
+      password: password,
+      client: network.client,
+      network: network,
+    );
+
+    unawaited(instance._init());
+    return instance;
+  }
+
+  QBittorrentServer._internal({
+    required this.network,
     this.url,
     this.label,
     this.username,
     this.password,
-    http.Client? httpClient,
-    this.isTestMode = false,
-  }) : client = httpClient ?? http.Client() {
+    this.client,
+  }) {
     torrentStreamController = StreamController<List<Torrent>>.broadcast();
-    connectionStatusStreamController = StreamController<bool>.broadcast();
+    connectionStatusStreamController =
+        StreamController<ServerState>.broadcast();
+  }
 
-    network = Network(
+  @visibleForTesting
+  factory QBittorrentServer.test({
+    required http.Client client,
+    String? url,
+    String? label,
+    String? username,
+    String? password,
+  }) {
+    final network = Network(
       Server(
         url: url ?? '',
+        label: label,
         username: username ?? '',
         password: password ?? '',
       ),
-      client!,
+      client,
     );
 
-    _init();
+    return QBittorrentServer._internal(
+      url: url,
+      label: label,
+      username: username,
+      password: password,
+      client: network.client,
+      network: network,
+    );
   }
 
   static Future<bool> isValidServer(Server server) async =>
@@ -46,34 +94,30 @@ class QBittorrentServer implements TorrentServerBase {
   final String? username;
   @override
   final String? password;
-  final bool isTestMode;
 
   @override
   late final StreamController<List<Torrent>> torrentStreamController;
 
   @override
-  late final StreamController<bool> connectionStatusStreamController;
+  late final StreamController<ServerState> connectionStatusStreamController;
 
   @override
   final http.Client? client;
 
-  late final Network network;
+  final Network network;
 
   Future<void> _init() async {
-    if (isTestMode) {
-      return;
-    }
-
     try {
       await network.authenticate();
-
-      unawaited(_periodicTorrentFetch());
-      unawaited(_periodicConnectionCheck());
-
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
-      rethrow;
+      final canConnect = await Network.isValid(network.server);
+      connectionStatusStreamController.add(
+        canConnect ? ServerState.error : ServerState.disconnected,
+      );
     }
+
+    unawaited(_periodicTorrentFetch());
+    unawaited(_periodicConnectionCheck());
   }
 
   Future<void> torrentFetch() async {
@@ -86,10 +130,14 @@ class QBittorrentServer implements TorrentServerBase {
       final isConnected = await network.applicationVersion(
         timeout: const Duration(seconds: 2),
       );
-      connectionStatusStreamController.add(isConnected.isNotEmpty);
+      connectionStatusStreamController.add(
+        isConnected.isNotEmpty
+            ? ServerState.connected
+            : ServerState.disconnected,
+      );
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
-      connectionStatusStreamController.add(false);
+      connectionStatusStreamController.add(ServerState.error);
     }
   }
 
@@ -110,5 +158,12 @@ class QBittorrentServer implements TorrentServerBase {
       await connectionCheck();
       await Future<void>.delayed(refreshInterval);
     }
+  }
+
+  @override
+  void dispose() {
+    torrentStreamController.close();
+    connectionStatusStreamController.close();
+    client?.close();
   }
 }
