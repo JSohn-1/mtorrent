@@ -11,7 +11,7 @@ import 'network.mocks.mocks.dart';
 void main() {
   group('network', () {
     final mockHttpClient = MockHttpClient();
-    final endpoint = Uri.parse('http://example.com/api/v2/');
+    const endpoint = 'http://example.com';
     const cookie = 'SID=abcd1234';
 
     late Network network;
@@ -29,7 +29,7 @@ void main() {
         ).thenAnswer((_) async => response);
 
         final isValid = await Network.isValid(
-          Server(url: 'http://example.com', username: '', password: ''),
+          Server(url: endpoint, username: '', password: ''),
           mockHttpClient,
         );
 
@@ -48,7 +48,7 @@ void main() {
         ).thenAnswer((_) async => response);
 
         final isValid = await Network.isValid(
-          Server(url: 'http://example.com', username: '', password: ''),
+          Server(url: endpoint, username: '', password: ''),
           mockHttpClient,
         );
 
@@ -67,10 +67,9 @@ void main() {
         ).thenAnswer((_) async => response);
 
         network = Network(
-          Server(url: 'http://example.com', username: '', password: ''),
+          Server(url: endpoint, username: '', password: ''),
           mockHttpClient,
-        );
-        network.cookie = cookie;
+        )..cookie = cookie;
 
         final version = await network.applicationVersion();
 
@@ -87,13 +86,12 @@ void main() {
         ).thenAnswer((_) async => response);
 
         network = Network(
-          Server(url: 'http://example.com', username: '', password: ''),
+          Server(url: endpoint, username: '', password: ''),
           mockHttpClient,
-        );
-        network.cookie = cookie;
+        )..cookie = cookie;
 
         expect(
-          () async => await network.applicationVersion(),
+          () async => network.applicationVersion(),
           throwsA(isA<Exception>()),
         );
       });
