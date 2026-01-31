@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +43,6 @@ void main() {
             });
 
         final okayResponse = http.Response('{"version":"4.3.3"}', 200);
-        final failResponse = http.Response('Service Unavailable', 503);
 
         when(
           mockHttpClient.get(
@@ -59,7 +59,7 @@ void main() {
             argThat(predicate<Uri>((uri) => uri.path == '/api/v2/app/version')),
             headers: anyNamed('headers'),
           ),
-        ).thenAnswer((_) async => failResponse);
+        ).thenThrow(const SocketException('Host unreachable'));
 
         // Second check - should be disconnected
         await serverInstance.connectionCheck();

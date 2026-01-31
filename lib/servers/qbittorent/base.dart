@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../helpers/constants.dart';
+import '../../helpers/exceptions.dart';
 import '../models/torrent.dart';
 
 import 'network.dart';
@@ -127,14 +128,10 @@ class QBittorrentServer implements TorrentServerBase {
 
   Future<void> connectionCheck() async {
     try {
-      final isConnected = await network.applicationVersion(
-        timeout: const Duration(seconds: 2),
-      );
-      connectionStatusStreamController.add(
-        isConnected.isNotEmpty
-            ? ServerState.connected
-            : ServerState.disconnected,
-      );
+      await network.applicationVersion(timeout: const Duration(seconds: 2));
+      connectionStatusStreamController.add(ServerState.connected);
+    } on ConnectionException {
+      connectionStatusStreamController.add(ServerState.disconnected);
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       connectionStatusStreamController.add(ServerState.error);

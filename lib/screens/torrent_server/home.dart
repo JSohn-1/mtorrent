@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../helpers/decoration.dart';
 
 import '../../servers/torrent_server_base.dart';
+import 'torrent_list.dart';
 
 class TorrentServerHomeScreen extends StatelessWidget {
   const TorrentServerHomeScreen({required this.server, super.key});
@@ -24,6 +25,7 @@ class TorrentServerHomeScreen extends StatelessWidget {
                   Center(child: Text(server.label!)),
                 ],
               ),
+              Expanded(child: Torrentlist(server: server)),
             ],
           ),
         ),

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'dart:convert';
 
 import '../../helpers/constants.dart';
+import '../../helpers/exceptions.dart';
 import '../models/server.dart';
 import '../models/torrent.dart';
 
@@ -35,31 +38,71 @@ class Network {
     }
   }
 
+  void validateResponse(Response response) {
+    if (response.statusCode == 200) {
+      return;
+    }
+
+    if (response.statusCode == 403) {
+      throw AuthenticationException(
+        'Not signed in. Critical error, try reloading the app.',
+      );
+    }
+
+    if (response.statusCode == 403) {
+      throw AuthenticationException(response.body);
+    }
+
+    if (response.statusCode == 404) {
+      throw AuthenticationException(
+        'Critical API mismatch. Are you sure this is a qBittorrent server?',
+      );
+    }
+    throw ConnectionException(
+      'Request failed with status: ${response.statusCode}',
+    );
+  }
+
+  Never handleException(Exception e) {
+    if (e is SocketException) {
+      throw ConnectionException('Network error: ${e.message}');
+    } else if (e is http.ClientException) {
+      throw ConnectionException('HTTP client error: ${e.message}');
+    } else {
+      throw e;
+    }
+  }
+
   Future<Response> get(
     String path, {
     Map<String, String>? query,
     Duration? timeout,
   }) async {
-    cookie ??= throw Exception('Not authenticated');
+    cookie ??= throw AuthenticationException('Not authenticated');
 
     final fullPath = '/api/v2/$path';
 
     final baseUri = Uri.parse(server.url);
     final url = baseUri.replace(path: fullPath, queryParameters: query);
-    final response = await client
-        .get(url, headers: {'Cookie': cookie!})
-        .timeout(timeout ?? networkTimeout);
-
-    if (response.statusCode == 403) {
-      await authenticate();
-      final response2 = await client
+    try {
+      final response = await client
           .get(url, headers: {'Cookie': cookie!})
           .timeout(timeout ?? networkTimeout);
+      // ignore: avoid_catches_without_on_clauses
 
-      return response2;
+      if (response.statusCode == 403) {
+        await authenticate();
+        final response2 = await client
+            .get(url, headers: {'Cookie': cookie!})
+            .timeout(timeout ?? networkTimeout);
+
+        return response2;
+      }
+
+      return response;
+    } catch (e) {
+      return handleException(e as Exception);
     }
-
-    return response;
   }
 
   Future<Response> post(
@@ -70,24 +113,32 @@ class Network {
   }) async {
     final fullPath = '/api/v2/$path';
     if (fullPath != '/api/v2/auth/login') {
-      cookie ??= throw Exception('Not authenticated');
+      cookie ??= throw AuthenticationException('Not authenticated');
     }
 
     final baseUri = Uri.parse(server.url);
     final url = baseUri.replace(path: fullPath, queryParameters: query);
-    final response = await client
-        .post(url, body: body, headers: {if (cookie != null) 'Cookie': cookie!})
-        .timeout(timeout ?? networkTimeout);
-
-    if (response.statusCode == 403 && fullPath != '/api/v2/auth/login') {
-      await authenticate();
-
-      final response2 = await client
-          .post(url, body: body, headers: {'Cookie': cookie!})
+    try {
+      final response = await client
+          .post(
+            url,
+            body: body,
+            headers: {if (cookie != null) 'Cookie': cookie!},
+          )
           .timeout(timeout ?? networkTimeout);
-      return response2;
+
+      if (response.statusCode == 403 && fullPath != '/api/v2/auth/login') {
+        await authenticate();
+
+        final response2 = await client
+            .post(url, body: body, headers: {'Cookie': cookie!})
+            .timeout(timeout ?? networkTimeout);
+        return response2;
+      }
+      return response;
+    } catch (e) {
+      return handleException(e as Exception);
     }
-    return response;
   }
 
   Future<void> authenticate() async {
@@ -119,6 +170,8 @@ class Network {
 
   Future<String> applicationVersion({Duration? timeout}) async {
     final response = await get('app/version', timeout: timeout);
+
+    validateResponse(response);
 
     if (response.statusCode == 200) {
       return response.body;
