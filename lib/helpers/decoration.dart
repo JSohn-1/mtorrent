@@ -10,7 +10,7 @@ final primaryDarkTheme = ThemeData.dark().copyWith(
 
 const textFieldDecoration = InputDecoration(
   filled: true,
-  fillColor: Colors.white,
+  fillColor: Colors.grey,
   contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
   floatingLabelBehavior: FloatingLabelBehavior.never,
   // border: OutlineInputBorder(

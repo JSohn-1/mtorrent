@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import './screens/homepage/home.dart';
-import 'helpers/db.dart';
+// import 'helpers/db.dart';
 import 'helpers/decoration.dart';
 
 void main() async {
-  // SUPER TEMPORARY DELETE WHEN BUILDING RELEASE
-  WidgetsFlutterBinding.ensureInitialized();
-  await Db().resetDatabase();
+  // // SUPER TEMPORARY DELETE WHEN BUILDING RELEASE
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Db().resetDatabase();
 
   runApp(const MyApp());
 }

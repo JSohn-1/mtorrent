@@ -8,6 +8,7 @@ import '../../helpers/constants.dart';
 import '../../helpers/exceptions.dart';
 import '../models/server.dart';
 import '../models/torrent.dart';
+import '../servers.dart';
 
 class Network {
   Network(this.server, this.client);
@@ -187,7 +188,9 @@ class Network {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Torrent.fromJson(json)).toList();
+      return data
+          .map((json) => Torrent.fromJson(json, ServerType.qbittorrent))
+          .toList();
     } else {
       throw Exception('Failed to fetch torrents');
     }
