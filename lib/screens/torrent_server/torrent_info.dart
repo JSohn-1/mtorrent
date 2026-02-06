@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import '../../servers/models/torrent.dart';
 
 class TorrentInfo extends StatelessWidget {
-  final Torrent torrent;
+  const TorrentInfo({required this.torrent, super.key});
 
-  const TorrentInfo({Key? key, required this.torrent}) : super(key: key);
+  final Torrent torrent;
 
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text('Torrent Info - ${torrent.id}')),
     body: Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

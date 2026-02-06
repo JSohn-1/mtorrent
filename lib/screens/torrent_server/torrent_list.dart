@@ -79,6 +79,21 @@ class TorrentListItem extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // A vertical colored bar indicating the status of the torrent
+          Container(
+            alignment: Alignment.centerLeft,
+            width: 10,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: torrent.status == TorrentStatus.completed
+                  ? Colors.blue
+                  : torrent.status == TorrentStatus.downloading
+                  ? Colors.green
+                  : Colors.grey,
+            ),
+          ),
+          const SizedBox(width: 10),
           SizedBox(
             width: MediaQuery.of(context).size.width - 60,
             child: Column(
@@ -97,7 +112,7 @@ class TorrentListItem extends StatelessWidget {
                         color: const Color.fromRGBO(255, 255, 255, 0.078),
                       ),
                       child: Text(
-                        torrent.name, // Torrent name
+                        torrent.name,
                         maxLines: 1,
                         style: const TextStyle(
                           color: Colors.white,
@@ -117,7 +132,6 @@ class TorrentListItem extends StatelessWidget {
                   valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
                 ),
                 const Spacer(),
-
                 Row(
                   children: [
                     SizedBox(
@@ -174,7 +188,6 @@ class TorrentListItem extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          // An arrow pointing to the right to indicate that the user can click on the box to see more information
           const Icon(
             Icons.arrow_forward_ios_rounded,
             color: Colors.white,

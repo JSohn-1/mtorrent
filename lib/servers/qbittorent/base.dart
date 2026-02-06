@@ -110,6 +110,7 @@ class QBittorrentServer implements TorrentServerBase {
   Future<void> _init() async {
     try {
       await network.authenticate();
+      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       final canConnect = await Network.isValid(network.server);
       connectionStatusStreamController.add(

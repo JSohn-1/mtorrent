@@ -219,6 +219,7 @@ class _AddNewScreenState extends State<AddNewScreen> {
               ),
               const Text('Password'),
               TextFormField(
+                obscureText: true,
                 decoration: textFieldDecoration.copyWith(
                   hintText: 'Enter password',
                   labelText: 'Password',
